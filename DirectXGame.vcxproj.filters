@@ -22,9 +22,6 @@
     <Filter Include="ヘッダー ファイル\3d">
       <UniqueIdentifier>{8ccef709-d514-43f7-ad35-629a9edd5057}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\2d">
-      <UniqueIdentifier>{511af41b-deb5-4e1d-9d2e-319a48535b38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\2d">
       <UniqueIdentifier>{96135050-efba-425e-a9fe-8881bd7caad8}</UniqueIdentifier>
     </Filter>
@@ -51,6 +48,9 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\input">
       <UniqueIdentifier>{d461f61e-3cc4-4b11-b521-37a61c927ae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\3d\2d">
+      <UniqueIdentifier>{511af41b-deb5-4e1d-9d2e-319a48535b38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,10 +79,10 @@
       <Filter>ソース ファイル\3d</Filter>
     </ClCompile>
     <ClCompile Include="2d\Sprite.cpp">
-      <Filter>ソース ファイル\2d</Filter>
+      <Filter>ソース ファイル\3d\2d</Filter>
     </ClCompile>
     <ClCompile Include="2d\DebugText.cpp">
-      <Filter>ソース ファイル\2d</Filter>
+      <Filter>ソース ファイル\3d\2d</Filter>
     </ClCompile>
     <ClCompile Include="audio\Audio.cpp">
       <Filter>ソース ファイル\audio</Filter>

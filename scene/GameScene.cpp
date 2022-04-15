@@ -24,10 +24,13 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
-	//音声
-	/*soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
-	audio_->PlayWave(soundDataHandle_);
-	voiceHandle_ = audio_->PlayWave(soundDataHandle_,true);*/
+	
+	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
+	worldTransform_.rotation_ = {XM_PI/4.0f, XM_PI/4.0f, 0.0f};
+	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
+
+	worldTransform_.Initialize();
+
 }
 
 void GameScene::Update() {
@@ -41,13 +44,27 @@ void GameScene::Update() {
 		audio_->StopWave(voiceHandle_);
 	}
 
-	debugText_->Print("Kaizokuou ni oreha naru",50,50,1.0f);
-	debugText_->SetPos(50,70);
-	debugText_->Printf("year:%d",2001);
 
-	value_++;
-	std::string strDebug=
+	
+	std::string strDebug = std::string("translation:(") +
+	                       std::to_string(worldTransform_.translation_.x) + std::string(",")+
+	                       std::to_string(worldTransform_.translation_.y) + std::string(",")+
+	                       std::to_string(worldTransform_.translation_.z) + std::string(")");
+	debugText_->Print(strDebug, 50, 50, 1.0f);
+
+	std::string strDebug2 = std::string("rotation:(") +
+	                       std::to_string(worldTransform_.rotation_.x) + std::string(",") +
+	                       std::to_string(worldTransform_.rotation_.y) + std::string(",") +
+	                       std::to_string(worldTransform_.rotation_.z) + std::string(")");
+	debugText_->Print(strDebug2, 50, 65, 1.0f);
+
+	std::string strDebug3 = std::string("scale:(") +
+	                        std::to_string(worldTransform_.scale_.x) + std::string(",") +
+	                        std::to_string(worldTransform_.scale_.y) + std::string(",") +
+	                        std::to_string(worldTransform_.scale_.z) + std::string(")");
+	debugText_->Print(strDebug3, 50, 80, 1.0f);
 }
+
 
 void GameScene::Draw() {
 
@@ -61,7 +78,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
-	//sprite_->Draw();
+	
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -89,7 +106,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	//sprite_->Draw();
+	
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);
 	//
