@@ -1,8 +1,7 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
-#include "GameScene.h"
-#include "TextureManager.h"
 #include <cassert>
+#include <random>
 
 using namespace DirectX;
 
@@ -24,17 +23,26 @@ void GameScene::Initialize() {
 	sprite_ = Sprite::Create(textuerHandle_, {100, 50});
 	//
 	model_ = Model::Create();
-	worldTransform_.Initialize();
-	viewProjection_.Initialize();
-	//音声
-	/*soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
-	audio_->PlayWave(soundDataHandle_);
-	voiceHandle_ = audio_->PlayWave(soundDataHandle_,true);*/
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	worldTransform_.rotation_ = {XM_PI / 4.0f, XM_PI / 4.0f, 0.0f};
-	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
 
-	worldTransform_.Initialize();
+	/*viewProjection_.eye = {0,0,0};*/
+	viewProjection_.target = {10, 0, 0};
+	viewProjection_.up = {cosf(XM_PI / 4.0f), sinf(XM_PI / 4.0f), 0.0f};
+
+	viewProjection_.Initialize();
+
+	std::random_device seed_gen;
+	std::mt19937_64 engine(seed_gen());
+	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+
+		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
+
+		worldTransform_[i].Initialize();
+	}
 }
 
 void GameScene::Update() {
@@ -43,25 +51,48 @@ void GameScene::Update() {
 	position.y += 1.0f;
 	sprite_->SetPosition(position);
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		//音声停止
-		audio_->StopWave(voiceHandle_);
-	}
+	XMFLOAT3 move = {0, 0, 0};
 
+	const float keyeSpeed = 0.2f;
+	const float kTargetSpeed = 0.2f;
+	const float kUpRotspeed = 0.05f;
+	if (input_->PushKey(DIK_W)) {
+		move = {0, 0, keyeSpeed};
+	} else if (input_->PushKey(DIK_S)) {
+		move = {0, 0, -keyeSpeed};
+	}
+	viewProjection_.eye.x += move.x;
+	viewProjection_.eye.y += move.y;
+	viewProjection_.eye.z += move.z;
+	
+
+
+	if (input_->PushKey(DIK_LEFT)) {
+		move = {-kTargetSpeed, 0, 0};
+	} else if (input_->PushKey(DIK_RIGHT)) {
+		move = {kTargetSpeed, 0, 0};
+	}
+	viewProjection_.target.x += move.x;
+	viewProjection_.target.y += move.y;
+	viewProjection_.target.z += move.z;
+
+	
+	if (input_->PushKey(DIK_SPACE)) {
+		viewAngle += kUpRotspeed;
+		viewAngle = fmodf(viewAngle, XM_2PI);
+	}
+	viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
+	viewProjection_.UpdateMatrix();
 	debugText_->SetPos(50, 50);
 	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
-	
+	  "eye:(%f,%f,%f)", viewProjection_.eye.x, viewProjection_.eye.y, viewProjection_.eye.z);
 	debugText_->SetPos(50, 65);
 	debugText_->Printf(
-	  "rotation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
-	  worldTransform_.rotation_.z);
-
+	  "target:(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y,viewProjection_.target.z);
 	debugText_->SetPos(50, 80);
 	debugText_->Printf(
-	  "scale:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
-	  worldTransform_.scale_.z);
+	  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
+
 }
 
 void GameScene::Draw() {
@@ -76,7 +107,6 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
-	/*sprite_->Draw();*/
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -91,8 +121,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textuerHandle_);
-
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textuerHandle_);
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -104,7 +135,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	/*sprite_->Draw();*/
+
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);
 	//
@@ -113,3 +144,4 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
+
